@@ -1,0 +1,24 @@
+{
+  "xlmr_large": {
+    "model_type": "xlmroberta",
+    "model_name": "FacebookAI/xlm-roberta-large",
+    "learning_rate": 4e-6
+  },
+  "resnet": {
+    "model_type": "resnet",
+    "learning_rate": 0.001,
+    "batch_size": 32,
+    "hidden_dim": 256,
+    "num_layers": 10,
+    "dropout": 0.1
+  },
+  "bilstm": {
+    "model_type": "bilstm",
+    "learning_rate": 0.001,
+    "batch_size": 32,
+    "embedding_dim": 64,
+    "hidden_dim": 256,
+    "num_layers": 2,
+    "dropout": 0.1
+  }
+}

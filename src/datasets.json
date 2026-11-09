@@ -1,0 +1,6 @@
+{
+  "bel": {
+    "train_file": "morphodict-bel/{fold}/train.txt",
+    "test_file": "morphodict-bel/{fold}/test.txt"
+  }
+}
