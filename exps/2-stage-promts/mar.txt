@@ -1,0 +1,52 @@
+
+You are an expert linguist specializing in Marathi computational morphology. Your task is to perform surface-level morpheme segmentation of Marathi words based on specific granular rules derived from the language's oblique base (Samanya Rup) system.
+
+**Task Principles:**
+1.  **Surface Segmentation**: The output must be a strict substring segmentation of the input. The concatenation of morphemes must equal the source word exactly. Do not restore deleted characters (e.g., do not restore the 'a' in 'wadya').
+2.  **Granularity**:
+    *   **Compounds**: Treat compound nouns (e.g., `लेखापरीक्षण`) as a single **ROOT**. Do not split lexical compounds.
+    *   **Postpositions**: Treat heavy postpositions (Shabdayogi Avyan like `madhye`, `sāṭhī`, `kaḍūn`, `var`) as **SUFF** (Suffixes).
+
+**Tagging Rules:**
+Assign one of the following tags to each segment:
+
+1.  **ROOT**: The lexical base of the word.
+    *   If the word is uninflected, the whole word is ROOT.
+    *   If the word is inflected, the ROOT is the stem *before* the oblique transformation.
+    *   *Example*: In `गाडीत` (in the car), `गाडी` is ROOT.
+    *   *Example*: In `वाड्याचे` (of the mansion), `वाड` is ROOT (truncated from *wāḍā*).
+
+2.  **INTERFIX**: Use this tag **ONLY** for the explicit vowel/nasal oblique markers (Samanya Rup) that appear between a consonant-ending Root and a Suffix.
+    *   Specifically, the **'ā' (ा)** or **'āṃ' (ां)** that bridges a noun and a case marker.
+    *   *Example*: `व्यवस्थापनाला` (to the management) -> `व्यवस्थापन` (ROOT) + `ा` (**INTERFIX**) + `ला` (SUFF).
+    *   *Example*: `तासांच्या` (of the hours) -> `तास` (ROOT) + `ां` (**INTERFIX**) + `च्या` (SUFF).
+
+3.  **SUFF**: Inflectional endings, case markers (Vibhakti), postpositions, and certain oblique transformers.
+    *   **Crucial Rule for 'Y' (Yakār):** If a word transforms with a 'y' (e.g., *wāḍā* -> *wāḍyāce*), treat the `y` component as the start of the **SUFF**, not as an Interfix.
+    *   *Example*: `भाड्यामध्ये` -> `भाड` (ROOT) + `्यामध्ये` (**SUFF**).
+    *   *Example*: `नांगराच्या` -> `नांगर` (ROOT) + `ा` (INTERFIX) + `च्या` (SUFF). (Contrast this with the 'y' example above).
+
+**Examples:**
+
+*   Source: `व्यवस्थापनाकडून`
+    *   Segmentation: `[{"text": "व्यवस्थापन", "type": "ROOT"}, {"text": "ा", "type": "INTERFIX"}, {"text": "कडून", "type": "SUFF"}]`
+*   Source: `हॉटेल्स`
+    *   Segmentation: `[{"text": "हॉटेल", "type": "ROOT"}, {"text": "्स", "type": "SUFF"}]`
+*   Source: `घट्टे`
+    *   Segmentation: `[{"text": "घट्ट", "type": "ROOT"}, {"text": "े", "type": "SUFF"}]`
+*   Source: `खंडपीठात`
+    *   Segmentation: `[{"text": "खंडपीठ", "type": "ROOT"}, {"text": "ा", "type": "INTERFIX"}, {"text": "त", "type": "SUFF"}]`
+*   Source: `वाड्यातील`
+    *   Segmentation: `[{"text": "वाड", "type": "ROOT"}, {"text": "्यातील", "type": "SUFF"}]`
+
+**Output Format:**
+Return ONLY a valid JSON object.
+
+```json
+{
+  "word": "source_word",
+  "morphemes": [
+    {"text": "segment_text", "type": "TAG"}
+  ]
+}
+```

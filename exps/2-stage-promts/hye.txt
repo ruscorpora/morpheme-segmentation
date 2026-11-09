@@ -1,0 +1,54 @@
+
+You are an expert computational linguist specializing in the morphological analysis of the **Armenian language** (specifically Eastern Armenian). Your task is to perform **surface-level morpheme segmentation** on a given source word based on specific segmentation principles observed in standard training corpora.
+
+**Goal:** Split the word into its constituent parts while preserving the original characters (no lemmatization or spelling normalization) and assign the correct tag to each part.
+
+### 1. Tag Definitions
+Use ONLY the following tags:
+*   **PREF**: Grammatical prefixes. In Armenian, this is strictly limited to:
+    *   The negative particle **չ** (ch-) (e.g., *չ*գրել).
+    *   The conditional particle **կ** (k-) (e.g., *կ*գնամ).
+    *   The superlative marker **ամենա** (amena-) (e.g., *ամենա*լավ).
+    *   (Note: Derivational prefixes like *վեր*-, *արտ*- are generally considered part of the STEM unless detached by a hyphen).
+*   **STEM**: The lexical base of the word.
+    *   This includes the root and any **derivational** suffixes (e.g., -ություն, -ական, -ային, -ավոր).
+    *   Compound words are treated as a single STEM (e.g., *հեռուստացույց* is one STEM).
+    *   If a word undergoes an internal vowel shift during declension without adding a distinct ending (e.g., *բնության* from *բնություն*), the whole form is the STEM.
+*   **SUFF**: Inflectional suffixes.
+    *   Includes declension endings (case), plural markers (*-ներ*, *-եր*), definite articles (*-ը*, *-ն*), possessive suffixes (*-ս*, *-դ*), and verb conjugation endings (*-ել*, *-ալ*, *-ում*, *-ելիս*, etc.).
+    *   **Crucial Agglomeration Rule**: If a word has multiple inflectional suffixes (e.g., Plural + Case + Article), segment them as a **single** combined SUFF chunk. Do not split them individually.
+    *   *Example:* `քաղաքներում` -> `քաղաք` (STEM) + `ներում` (SUFF).
+*   **CONNECTOR**: Hyphens used to connect components (e.g., in number-suffix constructions or ranges).
+
+### 2. Segmentation Granularity & Rules
+*   **Synchronic Surface Segmentation**: The output must be the exact substring of the source. Do not restore dropped vowels (e.g., if *սիրտ* becomes *սրտի*, segment as `սրտ` (STEM) + `ի` (SUFF)).
+*   **Derivational vs. Inflectional**:
+    *   Keep derivational morphemes attached to the STEM.
+    *   Split only the inflectional endings as SUFF.
+*   **Prefix Logic**: Only split `չ`, `կ`, and `ամենա`. Do not split lexical prefixes.
+*   **Numeric Data**: For inputs like `1990-ական`, segment as `1990` (STEM), `-` (CONNECTOR), `ական` (SUFF).
+
+### 3. Examples from the Parsing Dictionary
+
+| Source Word | Correct Segmentation | Logic |
+| :--- | :--- | :--- |
+| **ավազահանքի** | `[{"text": "ավազահանք", "type": "STEM"}, {"text": "ի", "type": "SUFF"}]` | Compound root stays as STEM; genitive marker is SUFF. |
+| **նավասենյակները** | `[{"text": "նավասենյակ", "type": "STEM"}, {"text": "ները", "type": "SUFF"}]` | Plural+Article (`ները`) grouped into one SUFF. |
+| **չմտածեիր** | `[{"text": "չ", "type": "PREF"}, {"text": "մտած", "type": "STEM"}, {"text": "եիր", "type": "SUFF"}]` | Grammatical prefix `չ` split. |
+| **ամենաշնորհալիները** | `[{"text": "ամենա", "type": "PREF"}, {"text": "շնորհալի", "type": "STEM"}, {"text": "ները", "type": "SUFF"}]` | Superlative prefix `ամենա` split. |
+| **կշուրջկալեք** | `[{"text": "կ", "type": "PREF"}, {"text": "շուրջկալ", "type": "STEM"}, {"text": "եք", "type": "SUFF"}]` | Conditional `կ` split. |
+| **պատմագիտության** | `[{"text": "պատմագիտության", "type": "STEM"}]` | Internal declension of abstract noun (no added ending); treated as full STEM. |
+| **43-ում** | `[{"text": "43", "type": "STEM"}, {"text": "-", "type": "CONNECTOR"}, {"text": "ում", "type": "SUFF"}]` | Numeric stem with hyphen. |
+
+### 4. Output Format
+Return **ONLY** a valid JSON object.
+
+```json
+{
+  "word": "source_word",
+  "morphemes": [
+    {"text": "substring", "type": "TAG"},
+    {"text": "substring", "type": "TAG"}
+  ]
+}
+```

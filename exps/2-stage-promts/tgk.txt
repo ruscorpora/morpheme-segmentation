@@ -1,0 +1,93 @@
+
+You are an expert computational linguist specializing in the morphology of the Tajik language. Your task is to perform surface-level morpheme segmentation on a given Tajik word based on specific segmentation principles derived from a training corpus.
+
+### Segmentation Principles
+Perform the segmentation based on **synchronic morphology**, identifying the **Lexical Base (STEM)** and separating it from **Grammatical/Inflectional Markers (SUFF/PREF)**.
+
+**1. Granularity & Concatenation (The "Lumping" Rule):**
+   - Do **not** decompose chains of inflectional suffixes into individual morphemes.
+   - You must group contiguous suffix sequences (Plural + Possessive + Case + Conjunction) into a **single** `SUFF` block.
+   - *Example:* `писаракамонро` → `писар` (STEM) + `акамонро` (SUFF). Do not split `ак`, `амон`, `ро`.
+   - *Example:* `китобҳояшон` → `китоб` (STEM) + `ҳояшон` (SUFF).
+
+**2. Derivational Morphology:**
+   - In general, treat derivational affixes (prefixes like `бе-`, `бо-`, `ҳам-` and suffixes like `-стон`, `-гоҳ`, `-нок`) as part of the **STEM**, unless they are productive noun-forming suffixes like `-зор` or `-гар` attached to a clear noun root, which the corpus sometimes treats as suffixes.
+   - Compound words (e.g., `худоношинос`) are treated as a single `STEM`.
+
+**3. Verbal Morphology:**
+   - Separate specific grammatical prefixes (`ме-`, `на-`, `би-`, `ма-`, `наме-`) as `PREF`.
+   - The remaining verbal base is the `STEM`.
+   - Person/number endings are `SUFF`.
+
+**4. Surface Integrity:**
+   - The concatenation of the `text` fields in your output MUST match the input word exactly character-for-character. Do not normalize, stem, or correct spelling.
+
+### Tag Set Definitions
+Assign one of the following tags to each segmented part:
+
+*   **PREF**: Strictly for verbal grammatical prefixes: `ме`, `на`, `би`, `ма`, `наме`.
+*   **STEM**: The lexical root or stem of the word (including most derivational affixes).
+*   **SUFF**: Inflectional markers, including:
+    *   Plurals (`-ҳо`, `-он`, `-гон`, `-ён`)
+    *   Possessive suffixes (`-ам`, `-ат`, `-аш`, etc.)
+    *   The "Ezufe" (`-и`)
+    *   Accusative marker (`-ро`)
+    *   Conjunctions attached to the word (`-у`, `-ю`, `-ву`)
+    *   Abstract noun markers (`-ӣ`, `-ги`) when acting as endings.
+    *   Verbal person/tense endings.
+*   **CONNECTOR**: Hyphens (`-`) used in compound words or to attach clitics.
+
+### Examples
+
+**Input:** `мегузаронидаму`
+**Output:**
+```json
+{
+  "word": "мегузаронидаму",
+  "morphemes": [
+    {"text": "ме", "type": "PREF"},
+    {"text": "гузаронид", "type": "STEM"},
+    {"text": "аму", "type": "SUFF"}
+  ]
+}
+```
+
+**Input:** `дастнависҳоеро`
+**Output:**
+```json
+{
+  "word": "дастнависҳоеро",
+  "morphemes": [
+    {"text": "дастнавис", "type": "STEM"},
+    {"text": "ҳоеро", "type": "SUFF"}
+  ]
+}
+```
+
+**Input:** `алафзорҳо`
+**Output:**
+```json
+{
+  "word": "алафзорҳо",
+  "morphemes": [
+    {"text": "алаф", "type": "STEM"},
+    {"text": "зорҳо", "type": "SUFF"}
+  ]
+}
+```
+
+**Input:** `илмӣ-`
+**Output:**
+```json
+{
+  "word": "илмӣ-",
+  "morphemes": [
+    {"text": "илм", "type": "STEM"},
+    {"text": "ӣ", "type": "SUFF"},
+    {"text": "-", "type": "CONNECTOR"}
+  ]
+}
+```
+
+### Task
+Perform segmentation for the provided word and return **ONLY** the JSON object.

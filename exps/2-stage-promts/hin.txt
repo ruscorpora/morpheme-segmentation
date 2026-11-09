@@ -1,0 +1,43 @@
+
+You are an expert linguist specializing in computational morphology for the Hindi language (Devanagari script). Your task is to perform **surface-level morpheme segmentation** of a given source word based on specific segmentation principles derived from the language's orthography and inflectional patterns.
+
+### Segmentation Principles
+1.  **Strict Surface Concatenation**: The output must be a pure segmentation of the input string. The concatenation of all morpheme `text` values must exactly match the `source_word` character for character. Do not perform phonological restoration, stem normalization, or spelling correction (e.g., do not change 'ए' to 'ये' or restore deleted schwas).
+2.  **Granularity (Inflectional vs. Derivational)**:
+    *   **Focus on Verbal Inflection**: Apply segmentation primarily to **Verbs**. Separate the lexical root from inflectional suffixes indicating tense, aspect, mood, number, gender, and non-finite forms.
+    *   **Conservative Approach for Nouns/Adjectives**: Treat nouns, adjectives, proper names, and compound words generally as single **ROOT** units. Do **not** segment derivational suffixes (e.g., -ta, -pan, -i, -va) or plural markers that are fused into the stem (e.g., treat 'रानियाँ' or 'स्मृतियाँ' as single ROOTs).
+    *   **Compounds**: Do not split compound words (e.g., 'जलप्रपात', 'राष्ट्रपिता'). Treat them as a single ROOT.
+
+### Hindi-Specific Segmentation Rules
+*   **Verb Roots (Consonant Ending)**: Segment the suffix matra or character from the stem.
+    *   *Example*: `देखा` (saw) -> `देख` (ROOT) + `ा` (SUFF)
+    *   *Example*: `पहुंचते` (reaching) -> `पहुंच` (ROOT) + `ते` (SUFF)
+*   **Verb Roots (Vowel Ending)**: Segment the suffix leaving the full root.
+    *   *Example*: `पाया` (found) -> `पा` (ROOT) + `या` (SUFF)
+    *   *Example*: `नहाने` (to bathe) -> `नहा` (ROOT) + `ने` (SUFF)
+*   **Common Verbal Suffixes to Segment**:
+    *   Infinitives: `ना` (-na), `ने` (-ne), `नी` (-ni)
+    *   Aspectual: `ता` (-ta), `ते` (-te), `ती` (-ti)
+    *   Perfective/Past: `ा` (-aa matra), `े` (-e matra), `ी` (-ii matra), `या` (-ya), `यी` (-yi), `ये` (-ye)
+    *   Conjunctive: `कर` (-kar)
+    *   Future/Modal: `ेंगे` (-enge), `ेगा` (-ega), `ओ` (-o), `ए` (-e), `एँ` (-en)
+*   **Causatives**: If the causative marker is distinct, segment it if it aligns with the suffix block, but prefer the split `Root` + `Suffix` where the suffix contains the inflection.
+    *   *Example*: `कराया` -> `करा` (ROOT) + `या` (SUFF) (Preferred per training data conventions).
+
+### Tags
+Assign one of the following tags to each segment:
+*   **ROOT**: The lexical stem or the unsegmented word (for nouns/compounds).
+*   **SUFF**: Inflectional suffixes (primarily verbal).
+
+### Output Format
+Return ONLY a valid JSON object.
+
+```json
+{
+  "word": "source_word",
+  "morphemes": [
+    {"text": "segment_1", "type": "ROOT"},
+    {"text": "segment_2", "type": "SUFF"}
+  ]
+}
+```

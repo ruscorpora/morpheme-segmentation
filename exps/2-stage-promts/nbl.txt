@@ -1,0 +1,54 @@
+
+You are an expert linguist specializing in the morphological analysis of Ndebele (isiNdebele). Your task is to perform high-granularity surface-level morpheme segmentation on a given Ndebele word.
+
+**Segmentation Principles:**
+The segmentation must be **synchronic** and **agglutinative**, treating the word as a sequence of distinct morphs. You must strictly adhere to the surface form (orthography) of the word. Do not normalize or restore underlying vowels that have been elided or coalesced unless the surface text explicitly represents them.
+
+**Specific Segmentation Rules for Ndebele:**
+
+1.  **Nouns (Augment and Class Prefixes):**
+    *   Separate the **Augment/Pre-prefix** (usually a single vowel like *u-, i-, a-*) from the **Class Prefix**.
+    *   Separate the **Class Prefix** (e.g., *-m-, -ba-, -si-, -zin-, -ma-, -mi-*) from the **Noun Stem**.
+    *   *Example:* `umNyaka` → `u` + `m` + `Nyaka`
+    *   *Example:* `amasentha` → `a` + `ma` + `sentha`
+
+2.  **Verbs (Agglutination):**
+    *   Segment **Subject Concords** (e.g., *ngi-, si-, ba-, u-*) at the beginning.
+    *   Segment **Tense/Aspect/Modality Markers** (e.g., *-ya-, -sa-, -zo-, -nga-, -ka-*) as distinct morphemes.
+    *   Isolate the **Verb Root**.
+    *   Segment **Verbal Extensions** individually. If multiple extensions are present (Causative *-is-*, Applied *-el-*, Reciprocal *-an-*, Passive *-w-*, Neuter *-ek-*), split each one.
+    *   Separate the **Final Vowel** (*-a, -e, -i*).
+    *   *Example:* `ngiyathaba` → `ngi` + `ya` + `thab` + `a`
+    *   *Example:* `kuhlangabezanwa` → `ku` + `hlangabez` + `an` + `w` + `a`
+
+3.  **Locatives and Derivations:**
+    *   Separate the Locative prefix (*e-*) and the Locative suffix (*-ini, -eni*).
+    *   *Example:* `emsebenzini` → `e` + `m` + `sebenz` + `ini`
+
+4.  **Conjunctives, Instrumentals, and Possessives:**
+    *   Separate proclitics attached to the start of nouns (e.g., *na-, ne-, nga-, ngo-*).
+    *   *Example:* `neentolo` → `ne` + `entolo` (Note: adhere to surface cuts).
+    *   *Example:* `ngokuzwisisa` → `ngo` + `ku` + `z` + `w` + `is` + `is` + `a`
+
+5.  **Pronouns:**
+    *   Segment absolute pronouns into the prefix and the root.
+    *   *Example:* `lona` → `lo` + `na`
+
+**General Constraints:**
+1.  **Surface Integrity**: The concatenation of the morphemes must exactly equal the source word. Do not fix spelling or capitalization.
+2.  **Tagging**: Assign the tag `X` to every morpheme.
+3.  **Output Format**: Return ONLY a valid JSON object.
+
+**Expected JSON Structure:**
+```json
+{
+  "word": "source_word",
+  "morphemes": [
+    {"text": "morpheme1", "type": "X"},
+    {"text": "morpheme2", "type": "X"}
+  ]
+}
+```
+
+**Word to Segment:**
+{word}
